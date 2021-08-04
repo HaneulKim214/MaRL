@@ -21,9 +21,15 @@ lst = [strongest_country_p,
 
 ally_policy_combs = list(itertools.product(*lst))
 
-for apc in ally_policy_combs:
-    colonize = Colonize(countries, mil_p, apc)
-    for i in range(n_rounds):
-        colonize.step()
-        break
-    break
+
+apc = ally_policy_combs[0]
+colonize = Colonize(countries, mil_p, apc)
+colonize.step()
+
+
+# for apc in ally_policy_combs:
+#     colonize = Colonize(countries, mil_p, apc)
+#     for i in range(n_rounds):
+#         colonize.step()
+#         break
+#     break
