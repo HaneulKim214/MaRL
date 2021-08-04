@@ -44,7 +44,7 @@ class Colonize:
     def __init__(self, countries, mil_p, apc):
         self.mil_p = mil_p
         # order them in ascending order w.r.t. land_size
-        self.countries = sorted(countries, key=lambda x: x.land_size, reverse=True)
+        self.countries = sorted(countries, key=lambda x: x.land_size, reverse=False)
         self.assign_ally_policy(apc)
         self.betting_area = np.zeros((3,3))
 
@@ -56,32 +56,58 @@ class Colonize:
         Paramaters
         ---------
         apc : tuple
-              tuple of policy in order of strongest to weakest
+              tuple of policy in order of weakest to strongest
               (ally_policy1, ally_policy2, ally_policy3)
         """
         for i, country in enumerate(self.countries):
             country.ally_policy = apc[i]
-
-    def bet(self, country, rnk):
-        """
-        Place bet on betting_area
-        """
+            country.rank = i
 
     def step(self):
         """
-        :return:
+        colonize played once
         """
-        for rnk, country in enumerate(self.countries):
+        for country in self.countries:
             country.get_military(self.mil_p)
-            country.gen_action(self.countries)
-            self.bet(country, rnk)
-        # take away land from each other depending on bet.
+            country.prepare_war(self.countries)
+
+        # take away 10% land from opponent who lost bet.
+        for country in self.countries:
+            n = len(country.attacked)
+            for attacking_country in country.attacked:
+                self.go2war(country, attacking_country, n)
 
     def reset(self):
         """
         Resets environment to initial conditions
         """
 
+    @staticmethod
+    def go2war(country, attacking_country, n):
+        """
+        Two countries go on war with each other and
+        country with higher military power take over 10% of losers land
+
+        Parameters
+        ----------
+        country, attacking_country : Object
+                                     Country object
+        n : int
+            number of countries country need to fight
+        """
+        t_mil_size = country.military_size + attacking_country.military_size
+        c_win_p = country.military_size / t_mil_size
+        win = np.random.binomial(n=1, p=c_win_p)
+
+        if win:
+            reward = attacking_country.land_size * 0.1
+            country.land_size += reward
+            attacking_country.land_size -= reward
+
+        else:
+            reward = country.land_size * 0.1
+            country.land_size -= reward
+            attacking_country.land_size += reward
 
 class Country:
     """
@@ -105,11 +131,13 @@ class Country:
 
     """
     def __init__(self, name, land):
+        self.ally = []
+        self.attacked = []
         self.name = name
         self.land_size = land
         self.military_size = 0
-        self.ally = []
         assert len(self.ally) <= 1, "You cannot have truth with all Countries"
+
 
     def get_military(self, mil_p):
         """
@@ -119,15 +147,16 @@ class Country:
         """
         self.military_size = self.land_size * mil_p
 
-    def gen_action(self, countries):
+    def prepare_war(self, countries):
         """
-        Generate list of possible attackable countries
-        depending on their ally_policy
+        pick country to attack from list of possible attackable countries
+        depending on ally_policy
         """
         if self.ally_policy == "no_ally":
             # bet on either country with 50/50 chance
             self.action_space = [c for c in countries if self.name != c.name]
             self.action = random.choice(self.action_space)
+            self.action.attacked.append(self)
 
         elif self.ally_policy == "strongest":
             pass
