@@ -1,6 +1,13 @@
+"""
+For testing MaRL games
+
+"""
+
+
 import itertools
 
-from multi_agent_env import Colonize, Country
+from env.multi_agent_env import Colonize
+from agents.countries import Country
 
 Korea = Country("Korea", 30)
 Canada = Country("Canada", 25)
@@ -25,7 +32,6 @@ ally_policy_combs = list(itertools.product(*lst))
 apc = ally_policy_combs[0]
 colonize = Colonize(countries, mil_p, apc)
 colonize.step()
-
 
 # for apc in ally_policy_combs:
 #     colonize = Colonize(countries, mil_p, apc)
