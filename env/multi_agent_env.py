@@ -54,6 +54,7 @@ class Colonize:
         self.countries = sorted(countries, key=lambda x: x.land_size, reverse=False)
         self.assign_ally_policy(apc)
         self.betting_area = np.zeros((3,3))
+        self.n_steps = 0
 
     def assign_ally_policy(self, apc):
         """
@@ -83,6 +84,8 @@ class Colonize:
             n = len(country.attacked)
             for attacking_country in country.attacked:
                 self.go2war(country, attacking_country, n)
+        self.n_steps += 1
+
 
     def reset(self):
         """
@@ -106,6 +109,7 @@ class Colonize:
         c_win_p = country.military_size / t_mil_size
         win = np.random.binomial(n=1, p=c_win_p)
 
+        # !!! need to fix: check if land_size < 0, if so episode finishes
         if win:
             reward = attacking_country.land_size * 0.1
             country.land_size += reward

@@ -29,9 +29,16 @@ lst = [strongest_country_p,
 ally_policy_combs = list(itertools.product(*lst))
 
 
+# Test for "no ally" ally policy for all countries
 apc = ally_policy_combs[0]
 colonize = Colonize(countries, mil_p, apc)
-colonize.step()
+
+land_size_dict = {"Korea":[], "Canada":[], "China":[]}
+
+for i in range(10):
+    colonize.step()
+    for country in colonize.countries:
+        land_size_dict[country.name].append(country.land_size)
 
 # for apc in ally_policy_combs:
 #     colonize = Colonize(countries, mil_p, apc)
