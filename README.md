@@ -4,4 +4,4 @@
 
 ### Guide
 
-1. run test_env.py using debug mode and see where it takes you :)
+1. run test_env.py using debug mode and see where it takes you! :)
