@@ -46,16 +46,22 @@ class Country:
         """
         self.military_size = self.land_size * mil_p
 
-    def prepare_war(self, countries):
+    def who2attack(self, countries):
         """
         pick country to attack from list of possible attackable countries
-        depending on ally_policy
+        depending on ally_policy.
+
+        Betting area of Colonize object will be filled using
+        returned values.
+
+        :return
+        self.action.rank : rank of attacking country
+
         """
         if self.ally_policy == "no_ally":
             # bet on either country with 50/50 chance
             self.action_space = [c for c in countries if self.name != c.name]
             self.action = random.choice(self.action_space)
-            self.action.attacked.append(self)
 
         elif self.ally_policy == "strongest":
             pass
@@ -63,3 +69,5 @@ class Country:
             pass
         elif self.ally_policy == "weakest":
             pass
+
+        return self.action

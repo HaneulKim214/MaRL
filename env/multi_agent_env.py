@@ -1,6 +1,9 @@
 """
 Game environment
 
+Development legend(should be deleted once done):
+  *** = todos,
+  ??? = questions
 """
 
 # Author: Haneul Kim <haneulkim214@gmail.com>
@@ -52,8 +55,9 @@ class Colonize:
         self.mil_p = mil_p
         # order them in ascending order w.r.t. land_size
         self.countries = sorted(countries, key=lambda x: x.land_size, reverse=False)
+        self.n_countries = len(countries)
         self.assign_ally_policy(apc)
-        self.betting_area = np.zeros((3,3))
+        self.betting_area = np.zeros((self.n_countries, self.n_countries), dtype=object)
         self.n_steps = 0
 
     def assign_ally_policy(self, apc):
@@ -71,13 +75,29 @@ class Colonize:
             country.ally_policy = apc[i]
             country.rank = i
 
+    def fill_betting_area(self, country, attacked_country):
+        """Prepare war by filling betting_area
+
+        Parameters
+        ----------
+        country : Country Object
+                  attacking country
+
+        attacked_c_rank : int
+                          rank of attacked country
+        """
+        self.betting_area[country.rank][attacked_country.rank] = country.military_size
+
     def step(self):
         """
         colonize played once
         """
+        # *** develop dynamic ally policy -> ally policy chosen at each step
+
         for country in self.countries:
             country.get_military(self.mil_p)
-            country.prepare_war(self.countries)
+            attacked_country = country.who2attack(self.countries)
+            self.fill_betting_area(country, attacked_country)
 
         # take away 10% land from opponent who lost bet.
         for country in self.countries:
@@ -120,6 +140,10 @@ class Colonize:
             country.land_size -= reward
             attacking_country.land_size += reward
 
+# ally polices
+strongest_country_p = ["no_ally", "weakest", "2nd_strongest"]
+sec_strongest_country_p = ["no_ally", "strongest", "weakest"]
+weakest_country_p = ["no_ally", "strongest", "2nd_strongest"]
 
 
 # colonize = Colonize(countries)
