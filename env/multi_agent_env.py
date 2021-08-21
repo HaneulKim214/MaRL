@@ -43,11 +43,11 @@ class Colonize:
                   vertical countries place bet on country
                   on horizontal axis.
                   ex:
-                                           receives
+                                          attacked by
                                   country 1 | country 2 | country 3
                         country 1    0          0           3
 
-                    Bet country 2   10          0           0
+                        country 2   10          0           0
 
                         country 3    0          0           0
     """
@@ -86,14 +86,14 @@ class Colonize:
         attacked_c_rank : int
                           rank of attacked country
         """
-        self.betting_area[country.rank][attacked_country.rank] = country.military_size
+        self.betting_area[attacked_country.rank][country.rank] = country.military_size
 
     def step(self):
         """
         colonize played once
         """
         # *** develop dynamic ally policy -> ally policy chosen at each step
-
+        # ??? Is there way to vectorize? instead of looping?
         for country in self.countries:
             country.get_military(self.mil_p)
             attacked_country = country.who2attack(self.countries)
